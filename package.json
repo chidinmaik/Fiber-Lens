@@ -1,0 +1,20 @@
+{
+  "name": "fiber-lens",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm -w backend run dev",
+    "dev:frontend": "npm -w frontend run dev",
+    "build": "npm -w packages/sdk run build && npm -w backend run build && npm -w frontend run build",
+    "seed": "npm -w backend run db:push && npm -w backend tsx src/seed.ts"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

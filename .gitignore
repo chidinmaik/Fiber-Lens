@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+dist/
+*.tsbuildinfo
+
+# Database files
+*.db
+*.db-journal
+
+# Fiber node secrets and state
+fiber-node/ckb/
+fiber-node/fiber/sk
+fiber-node/fiber/store/
+
+# Large binaries / archives
+*.tar.gz
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Accidental / broken files
+$null
+undefined/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,25 @@
+{
+  "name": "@fiber/lens-sdk",
+  "version": "0.1.0",
+  "description": "Fiber Lens SDK — Payment observability and diagnostics for Fiber Network. Direct Fiber RPC client + failure classification engine + Lens API client.",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist/"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "keywords": ["fiber", "fiber-network", "lens", "diagnostics", "observability", "lightning", "ckb", "nervos"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chidinmaik/fiber-lens"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

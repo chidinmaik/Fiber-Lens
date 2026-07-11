@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  paymentHash     String   @unique
+  status          String   // Created | Inflight | Success | Failed
+  amount          String   // hex-encoded u128
+  fee             String   // hex-encoded u128
+  createdAt       BigInt
+  updatedAt       BigInt
+  failedError     String?
+  failureCode     String?  // TlcErrorCode variant name
+  failureCategory String?  // FailureCategory variant name
+  ownerAddress    String?  // CKB address of the payment owner (for wallet filtering)
+  rawFiberData    String?  // JSON blob of original Fiber response
+
+  diagnostics  Diagnostic[]
+  routeAttempts RouteAttempt[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([failureCategory])
+  @@index([ownerAddress])
+}
+
+model Diagnostic {
+  id              String   @id @default(cuid())
+  paymentHash     String
+  category        String   // FailureCategory
+  severity        String   // Low | Medium | High | Critical
+  retryability    Int      // 0–100
+  confidence      Int      // 0–100
+  summary         String
+  rootCause       String
+  recommendations String   // JSON array of strings
+  createdAt       BigInt   @default(0)
+
+  payment Payment @relation(fields: [paymentHash], references: [paymentHash])
+
+  @@index([paymentHash])
+}
+
+model RouteAttempt {
+  id             String  @id @default(cuid())
+  paymentHash    String
+  attemptIndex   Int
+  hopCount       Int
+  failingHop     Int?
+  failingNode    String?
+  failingChannel String?
+  status         String  // Success | Failed | Inflight
+  failureReason  String?
+  routeNodesJson String  // JSON array of RouteNode
+
+  payment Payment @relation(fields: [paymentHash], references: [paymentHash])
+
+  @@index([paymentHash])
+}
