@@ -57,7 +57,7 @@ export default function PaymentsPage() {
           <table className="data-table">
             <thead><tr className="border-b border-border"><th>Payment Hash</th><th>Status</th><th>Fee</th><th>Category</th><th>Created</th></tr></thead>
             <tbody>
-              {data.items.map((p) => (
+              {data.items.map((p: Payment) => (
                 <tr key={p.paymentHash}>
                   <td><Link href={`/payments/${p.paymentHash}`} className="hash-text text-info hover:underline">{p.paymentHash.slice(0, 16)}...</Link></td>
                   <td><span className={statusBadge(p.status)}>{p.status}</span></td>

@@ -17,7 +17,7 @@ export default function DiagnosticsPage() {
 
   useEffect(() => {
     Promise.all([api.analytics.failuresByCategory(), api.analytics.recentFailures(10)])
-      .then(([a, r]) => { setAnalytics(a); setRecent(r); })
+      .then(([a, r]: [FailureAnalytics, RecentFailure[]]) => { setAnalytics(a); setRecent(r); })
       .catch(console.error).finally(() => setLoading(false));
   }, []);
 
@@ -46,7 +46,7 @@ export default function DiagnosticsPage() {
         <div className="metric-card">
           <h3 className="text-sm font-medium mb-4 flex items-center gap-2"><Activity className="h-4 w-4 text-info" />Severity Distribution</h3>
           <div className="space-y-3">
-            {["Critical", "High", "Medium", "Low"].map((s) => (
+            {["Critical", "High", "Medium", "Low"].map((s: string) => (
               <div key={s} className="space-y-1">
                 <div className="flex justify-between text-sm"><span className={`severity-${s.toLowerCase()}`}>{s}</span><span className="font-mono">{analytics.severity.find((x: SeverityStat) => x.name === s)?.count || 0}</span></div>
                 <div className="h-2 rounded-full bg-accent overflow-hidden"><div className={`h-full rounded-full ${s === "Critical" || s === "High" ? "bg-destructive" : s === "Medium" ? "bg-warning" : "bg-success"}`} style={{ width: `${((analytics.severity.find((x: SeverityStat) => x.name === s)?.count || 0) / total) * 100}%` }} /></div>
@@ -67,7 +67,7 @@ export default function DiagnosticsPage() {
         <div className="metric-card">
           <h3 className="text-sm font-medium mb-4">Recent Failure Reasons</h3>
           <div className="space-y-2">
-            {recent.slice(0, 8).map((f) => (
+            {recent.slice(0, 8).map((f: RecentFailure) => (
               <div key={f.diagnosticId} className="text-sm border-b border-border pb-2 last:border-0">
                 <div className="flex items-center justify-between"><span className="font-medium text-xs">{CAT_LABELS[f.category] || f.category}</span><span className={`severity-${f.severity.toLowerCase()} text-xs`}>{f.severity}</span></div>
                 <p className="text-xs text-muted-foreground mt-0.5 truncate">{f.failedError || "No error details"}</p>

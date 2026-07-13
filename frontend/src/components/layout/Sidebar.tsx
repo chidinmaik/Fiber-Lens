@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { api } from "@/lib/api-client";
+import { api, SystemStatus } from "@/lib/api-client";
 import {
+  type LucideIcon,
   LayoutDashboard,
   CreditCard,
   Activity,
@@ -14,7 +15,13 @@ import {
   Plug,
 } from "lucide-react";
 
-const navItems = [
+type NavItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+};
+
+const navItems: NavItem[] = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/payments", label: "Payments", icon: CreditCard },
   { href: "/diagnostics", label: "Diagnostics", icon: Activity },
@@ -27,9 +34,9 @@ export function Sidebar() {
   const [fiberConnected, setFiberConnected] = useState<boolean | null>(null);
 
   useEffect(() => {
-    api.system.status().then(s => setFiberConnected(s.fiberStatus === "connected")).catch(() => {});
+    api.system.status().then((s: SystemStatus) => setFiberConnected(s.fiberStatus === "connected")).catch(() => {});
     const interval = setInterval(() => {
-      api.system.status().then(s => setFiberConnected(s.fiberStatus === "connected")).catch(() => {});
+      api.system.status().then((s: SystemStatus) => setFiberConnected(s.fiberStatus === "connected")).catch(() => {});
     }, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -49,7 +56,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => {
+        {navItems.map((item: NavItem) => {
           const isActive = pathname === item.href ||
             (item.href !== "/" && pathname.startsWith(item.href));
           return (

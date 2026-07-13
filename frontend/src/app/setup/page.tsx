@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { api, SystemStatus } from "@/lib/api-client";
+import { api, PaginatedList, Payment, SystemStatus } from "@/lib/api-client";
 import { useWallet } from "@/hooks/useWallet";
 import { WalletConnect } from "@/components/wallet/WalletConnect";
 import { Radio, Server, Database, ArrowRight, Loader2, CheckCircle2, XCircle, Zap, Wallet } from "lucide-react";
@@ -21,7 +21,7 @@ export default function SetupPage() {
     Promise.all([
       api.system.status(),
       api.payments.list({ limit: 1 }),
-    ]).then(([s, payments]) => {
+    ]).then(([s, payments]: [SystemStatus, PaginatedList<Payment>]) => {
       setStatus(s);
       setDemoDataExists(payments.total > 0);
       // If wallet connected AND fiber connected or has data, skip to dashboard

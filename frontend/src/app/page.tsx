@@ -17,7 +17,7 @@ export default function DashboardPage() {
       api.analytics.overview(),
       api.analytics.recentFailures(5),
     ])
-      .then(([ov, fr]) => { setOverview(ov); setFailures(fr); })
+      .then(([ov, fr]: [AnalyticsOverview, RecentFailure[]]) => { setOverview(ov); setFailures(fr); })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [wallet.address]);
@@ -91,7 +91,7 @@ export default function DashboardPage() {
       <div className="metric-card">
         <h3 className="text-sm font-medium mb-4">Recent Investigation Reports</h3>
         <div className="space-y-3">
-          {failures.length > 0 ? failures.map((f) => (
+          {failures.length > 0 ? failures.map((f: RecentFailure) => (
             <Link key={f.diagnosticId} href={`/payments/${f.paymentHash}`}
               className="block rounded-md border border-border p-3 hover:bg-accent/50 transition-all">
               <div className="flex items-center justify-between">
