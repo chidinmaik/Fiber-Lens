@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { api, InvestigationReport } from "@/lib/api-client";
+import { api, InvestigationReport, RouteAttempt, RouteNode, TimelineEvent } from "@/lib/api-client";
 import { ArrowLeft, AlertTriangle, CheckCircle2, Clock, Route, Radio, Shield, Zap } from "lucide-react";
 
 export default function InvestigationReportPage() {
@@ -44,11 +44,11 @@ export default function InvestigationReportPage() {
 
       <div className="metric-card">
         <div className="flex items-center gap-2 mb-4"><Route className="h-4 w-4 text-info" /><h3 className="text-sm font-medium">Route Analysis</h3></div>
-        {routeAttempts.length > 0 ? routeAttempts.map((a, ai) => (
+        {routeAttempts.length > 0 ? routeAttempts.map((a: RouteAttempt, ai: number) => (
           <div key={ai} className="border border-border rounded-lg p-4 mb-4 last:mb-0">
             <div className="flex items-center justify-between mb-3"><span className="text-sm font-medium">Attempt {a.attemptIndex + 1}</span><span className={badge(a.status)}>{a.status}</span></div>
             <div className="flex flex-wrap items-center gap-2">
-              {a.routeNodes.map((n, ni) => (
+              {a.routeNodes.map((n: RouteNode, ni: number) => (
                 <div key={ni} className="flex items-center gap-2">
                   <div className={`hop-node ${a.failingHop === ni + 1 ? "hop-failed" : a.status === "Success" ? "hop-success" : ""}`}><Radio className="h-3 w-3" /><span className="text-xs truncate max-w-[100px]">{n.pubkey.slice(0, 8)}...</span></div>
                   {ni < a.routeNodes.length - 1 && <div className="hop-arrow"><span className="text-xs mx-1">→</span></div>}
@@ -63,7 +63,7 @@ export default function InvestigationReportPage() {
       <div className="metric-card">
         <div className="flex items-center gap-2 mb-4"><Clock className="h-4 w-4 text-muted-foreground" /><h3 className="text-sm font-medium">Timeline</h3></div>
         <div className="space-y-0">
-          {timeline.map((e, i) => (
+          {timeline.map((e: TimelineEvent, i: number) => (
             <div key={i} className="flex gap-4 pb-4 last:pb-0">
               <div className="flex flex-col items-center">
                 <div className={`h-2 w-2 rounded-full mt-1.5 ${e.event.includes("Failed") ? "bg-destructive" : e.event.includes("Success") ? "bg-success" : "bg-muted-foreground"}`} />
@@ -79,7 +79,7 @@ export default function InvestigationReportPage() {
 
       <div className="metric-card">
         <div className="flex items-center gap-2 mb-3"><Shield className="h-4 w-4 text-success" /><h3 className="text-sm font-medium">Recommended Actions</h3></div>
-        <ul className="space-y-2">{diagnostic.recommendations.map((r, i) => <li key={i} className="flex items-start gap-2 text-sm"><CheckCircle2 className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />{r}</li>)}</ul>
+        <ul className="space-y-2">{diagnostic.recommendations.map((r: string, i: number) => <li key={i} className="flex items-start gap-2 text-sm"><CheckCircle2 className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />{r}</li>)}</ul>
       </div>
 
       {rawFiberData && (
