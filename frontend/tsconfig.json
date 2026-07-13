@@ -16,6 +16,7 @@
     "plugins": [{ "name": "next" }],
     "paths": {
       "@/*": ["./src/*"],
+      "@fiber/lens-sdk": ["../packages/sdk/src/types"],
       "@shared/*": ["../shared/src/*"]
     }
   },
