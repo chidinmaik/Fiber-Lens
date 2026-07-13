@@ -4,6 +4,9 @@
 //
 // External developers: use `new Lens({ baseUrl })` from @fiber/lens-sdk directly.
 // This module provides a convenience singleton pre-configured for the dashboard.
+//
+// FALLBACK: When the backend is unreachable (e.g. Vercel deployment without ngrok),
+// the API methods fall back to built-in demo data so the dashboard always works.
 
 import type {
   NormalizedPayment,
@@ -21,6 +24,14 @@ import type {
   PaginatedResponse,
   ApiResponse as SdkApiResponse,
 } from "@fiber/lens-sdk";
+import {
+  DEMO_OVERVIEW,
+  DEMO_FAILURE_ANALYTICS,
+  DEMO_RECENT_FAILURES,
+  DEMO_SYSTEM_STATUS,
+  demoPaymentList,
+  demoPaymentDetail,
+} from "./demo-data";
 
 // ─── Re-export with friendly names for frontend components ───
 
@@ -131,7 +142,7 @@ const http = new HttpClient();
 
 export const api = {
   payments: {
-    list(params?: {
+    async list(params?: {
       page?: number;
       limit?: number;
       status?: string;
@@ -141,32 +152,56 @@ export const api = {
       order?: string;
       address?: string;
     }): Promise<PaginatedResponse<NormalizedPayment>> {
-      return http.get("/payments", params as Record<string, string | number | undefined>);
+      try {
+        return await http.get("/payments", params as Record<string, string | number | undefined>);
+      } catch {
+        return demoPaymentList(params);
+      }
     },
 
-    analyze(hash: string): Promise<PaymentAnalysis> {
+    async analyze(hash: string): Promise<PaymentAnalysis> {
       return http.post("/payments/analyze", { payment_hash: hash });
     },
 
-    get(hash: string): Promise<InvestigationReport> {
-      return http.get(`/payments/${hash}`);
+    async get(hash: string): Promise<InvestigationReport> {
+      try {
+        return await http.get(`/payments/${hash}`);
+      } catch {
+        const demo = demoPaymentDetail(hash);
+        if (!demo) throw new Error("Payment not found");
+        return demo;
+      }
     },
 
-    diagnostics(hash: string): Promise<DiagnosticReport[]> {
-      return http.get(`/payments/${hash}/diagnostics`);
+    async diagnostics(hash: string): Promise<DiagnosticReport[]> {
+      try {
+        return await http.get(`/payments/${hash}/diagnostics`);
+      } catch {
+        return [];
+      }
     },
 
-    attempts(hash: string): Promise<RouteAttempt[]> {
-      return http.get(`/payments/${hash}/attempts`);
+    async attempts(hash: string): Promise<RouteAttempt[]> {
+      try {
+        return await http.get(`/payments/${hash}/attempts`);
+      } catch {
+        const demo = demoPaymentDetail(hash);
+        return demo?.routeAttempts || [];
+      }
     },
 
-    timeline(hash: string): Promise<TimelineEvent[]> {
-      return http.get(`/payments/${hash}/timeline`);
+    async timeline(hash: string): Promise<TimelineEvent[]> {
+      try {
+        return await http.get(`/payments/${hash}/timeline`);
+      } catch {
+        const demo = demoPaymentDetail(hash);
+        return demo?.timeline || [];
+      }
     },
   },
 
   diagnostics: {
-    list(params?: {
+    async list(params?: {
       page?: number;
       limit?: number;
       category?: string;
@@ -177,22 +212,34 @@ export const api = {
       return http.get("/diagnostics", params as Record<string, string | number | undefined>);
     },
 
-    get(id: string): Promise<DiagnosticReport & { payment: { paymentHash: string; status: string; failedError: string | null } }> {
+    async get(id: string): Promise<DiagnosticReport & { payment: { paymentHash: string; status: string; failedError: string | null } }> {
       return http.get(`/diagnostics/${id}`);
     },
   },
 
   analytics: {
-    overview(): Promise<AnalyticsOverview> {
-      return http.get("/analytics/overview");
+    async overview(): Promise<AnalyticsOverview> {
+      try {
+        return await http.get("/analytics/overview");
+      } catch {
+        return DEMO_OVERVIEW;
+      }
     },
 
-    failuresByCategory(): Promise<FailureAnalytics> {
-      return http.get("/analytics/failures-by-category");
+    async failuresByCategory(): Promise<FailureAnalytics> {
+      try {
+        return await http.get("/analytics/failures-by-category");
+      } catch {
+        return DEMO_FAILURE_ANALYTICS;
+      }
     },
 
-    recentFailures(limit?: number): Promise<RecentFailure[]> {
-      return http.get("/analytics/recent-failures", { limit });
+    async recentFailures(limit?: number): Promise<RecentFailure[]> {
+      try {
+        return await http.get("/analytics/recent-failures", { limit });
+      } catch {
+        return DEMO_RECENT_FAILURES.slice(0, limit || 5);
+      }
     },
   },
 
@@ -215,8 +262,12 @@ export const api = {
       return http.get("/system/health");
     },
 
-    status(): Promise<SystemStatus> {
-      return http.get("/system/status");
+    async status(): Promise<SystemStatus> {
+      try {
+        return await http.get("/system/status");
+      } catch {
+        return DEMO_SYSTEM_STATUS;
+      }
     },
 
     testConnection(rpcUrl: string): Promise<{ connected: boolean; rpcUrl: string; error?: string }> {
