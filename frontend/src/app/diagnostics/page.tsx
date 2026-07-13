@@ -58,7 +58,7 @@ export default function DiagnosticsPage() {
         <div className="metric-card">
           <h3 className="text-sm font-medium mb-4 flex items-center gap-2"><TrendingUp className="h-4 w-4 text-success" />Retryability</h3>
           <div className="grid grid-cols-2 gap-4">
-            {Object.entries(analytics.retryabilityBuckets).map(([b, c]: [string, number]) => (
+            {(Object.entries(analytics.retryabilityBuckets) as Array<[string, number]>).map(([b, c]) => (
               <div key={b} className="text-center p-4 rounded-lg bg-accent/30"><p className="text-2xl font-semibold">{c}</p><p className="text-xs text-muted-foreground mt-1">{b}%</p></div>
             ))}
           </div>
