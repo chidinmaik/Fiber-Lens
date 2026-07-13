@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api, FailureAnalytics, RecentFailure } from "@/lib/api-client";
+import { api, FailureAnalytics, RecentFailure, FailureCategoryStat, SeverityStat } from "@/lib/api-client";
 import { Activity, AlertTriangle, TrendingUp } from "lucide-react";
 
 const CAT_LABELS: Record<string, string> = {
@@ -34,7 +34,7 @@ export default function DiagnosticsPage() {
         <div className="metric-card">
           <h3 className="text-sm font-medium mb-4 flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-destructive" />Failure Categories</h3>
           <div className="space-y-3">
-            {analytics.categories.map((c) => (
+            {analytics.categories.map((c: FailureCategoryStat) => (
               <div key={c.name} className="space-y-1">
                 <div className="flex justify-between text-sm"><span>{CAT_LABELS[c.name] || c.name}</span><span className="font-mono">{c.count}</span></div>
                 <div className="h-2 rounded-full bg-accent overflow-hidden"><div className="h-full bg-destructive rounded-full transition-all" style={{ width: `${(c.count / total) * 100}%` }} /></div>
@@ -48,8 +48,8 @@ export default function DiagnosticsPage() {
           <div className="space-y-3">
             {["Critical", "High", "Medium", "Low"].map((s) => (
               <div key={s} className="space-y-1">
-                <div className="flex justify-between text-sm"><span className={`severity-${s.toLowerCase()}`}>{s}</span><span className="font-mono">{analytics.severity.find(x => x.name === s)?.count || 0}</span></div>
-                <div className="h-2 rounded-full bg-accent overflow-hidden"><div className={`h-full rounded-full ${s === "Critical" || s === "High" ? "bg-destructive" : s === "Medium" ? "bg-warning" : "bg-success"}`} style={{ width: `${((analytics.severity.find(x => x.name === s)?.count || 0) / total) * 100}%` }} /></div>
+                <div className="flex justify-between text-sm"><span className={`severity-${s.toLowerCase()}`}>{s}</span><span className="font-mono">{analytics.severity.find((x: SeverityStat) => x.name === s)?.count || 0}</span></div>
+                <div className="h-2 rounded-full bg-accent overflow-hidden"><div className={`h-full rounded-full ${s === "Critical" || s === "High" ? "bg-destructive" : s === "Medium" ? "bg-warning" : "bg-success"}`} style={{ width: `${((analytics.severity.find((x: SeverityStat) => x.name === s)?.count || 0) / total) * 100}%` }} /></div>
               </div>
             ))}
           </div>
@@ -58,7 +58,7 @@ export default function DiagnosticsPage() {
         <div className="metric-card">
           <h3 className="text-sm font-medium mb-4 flex items-center gap-2"><TrendingUp className="h-4 w-4 text-success" />Retryability</h3>
           <div className="grid grid-cols-2 gap-4">
-            {Object.entries(analytics.retryabilityBuckets).map(([b, c]) => (
+            {Object.entries(analytics.retryabilityBuckets).map(([b, c]: [string, number]) => (
               <div key={b} className="text-center p-4 rounded-lg bg-accent/30"><p className="text-2xl font-semibold">{c}</p><p className="text-xs text-muted-foreground mt-1">{b}%</p></div>
             ))}
           </div>
